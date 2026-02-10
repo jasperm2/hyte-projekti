@@ -1,49 +1,58 @@
 import express from 'express';
+import {
+  deleteItemById,
+  getItemById,
+  getItems,
+  postNewItem,
+  putItemById,
+} from './items.js';
+
+
+import {getUsers, postLogin, postUser} from './users.js';
 const hostname = '127.0.0.1';
 const app = express();
 const port = 3000;
 
-// Dummy mock data (nollautuu aina, kun sovelluksen käynnistää uudelleen)
-const items = [
-  {id: 1, name: 'Omena'},
-  {id: 2, name: 'Appelsiini'},
-  {id: 3, name: 'Banaaneja'},
-];
-
 // parsitaan json data pyynnöstä ja lisätään request-objektiin
 app.use(express.json());
 
+// tarjoillaan webbisivusto (front-end) palvelimen juuressa
+app.use('/', express.static('public'));
+
 // API root
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
   res.send('This is dummy items API!');
 });
 
+// Endpoints for 'items' resource
 // Get all items
-app.get('/items', (req, res) => {
-  res.json(items);
-});
-
+app.get('/api/items', getItems);
 // Get item based on id
-app.get('/items/:id', (req, res) => {
-  console.log('getting item id:', req.params.id);
-  const itemFound = items.find(item => item.id == req.params.id);
-  if (itemFound) {
-    res.json(itemFound);
-  } else {
-    res.status(404).json({message: 'item not found'});
-  }
-});
-
-// TODO: add PUT route for items
-// TODO: add DELETE route for items
-
+app.get('/api/items/:id', getItemById);
+// PUT route for items
+app.put('/api/items/:id', putItemById);
+// DELETE route for items
+app.delete('/api/items/:id', deleteItemById);
 // Add new item
-app.post('/items', (req, res) => {
-  //console.log('add item request body', req.body);
-  // TODO: lisää id listaan lisättävälle objektille
-  items.push(req.body);
-  res.status(201).json({message: 'new item added'});
-});
+app.post('/api/items', postNewItem);
+
+// Users resource endpoints
+// GET all users
+app.get('/api/users', getUsers);
+// POST new user
+app.post('/api/users', postUser);
+// POST user login
+app.post('/api/users/login', postLogin);
+
+// TODO: get user by id
+app.get('/api/users/:id', getItemById)
+
+// TODO: put user by id
+app.get('/api/users/:id', putItemById)
+
+// TODO: delete user by id
+app.get('/api/users/:id', deleteItemById)
+
 
 app.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);
