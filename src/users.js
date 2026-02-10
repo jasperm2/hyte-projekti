@@ -1,0 +1,120 @@
+
+// Käyttäjät
+
+const users = [
+  {
+    id: 1,
+    username: 'johndoe',
+    password: 'password1',
+    email: 'johndoe@example.com',
+  },
+  {
+    id: 2,
+    username: 'janedoe',
+    password: 'password2',
+    email: 'janedoe@example.com',
+  },
+  {
+    id: 3,
+    username: 'bobsmith',
+    password: 'password3',
+    email: 'bobsmith@example.com',
+  },
+];
+
+//TODO: add users endpoints
+
+const getUsers = (req, response) => {
+  // ÄLÄ IKINÄ lähetä salasanoja HTTP-vastauksessa
+  for (let i = 0; i < users.length; i++) {
+    delete users[i].password;
+    // kaikki emailit sensuroitu esimerkki
+    // users[i].email = 'sensored';
+  }
+  response.json(users);
+};
+
+// TODO: getUserById
+
+  const getUserById = (req, res) => {
+  const id = Number(req.params.id);
+  const user = users.find(u => u.id === id);
+  if (!user) {
+    return res.status(404).json({error: 'käyttäjää ei löydy'});
+  }
+  const safeUser = {...user};
+  delete safeUser.password;
+  res.json(safeUser);
+};
+
+// TODO: putUserById
+
+const putUserById = (req, res) => {
+  const id = Number(req.params.id);
+  const user = users.find(u => u.id === id);
+
+  if (!user) {
+    return res.status(404).json({ error: 'käyttäjää ei löydy' });
+  }
+
+  const { username, password, email } = req.body;
+
+  if (username) user.username = username;
+  if (password) user.password = password;
+  if (email) user.email = email;
+
+  const safeUser = { ...user };
+  delete safeUser.password;
+
+  res.json({ message: 'käyttäjätiedot päivitetty', user: safeUser });
+};
+
+
+// TODO: deleteUserById
+
+const deleteUserById = (req, res) => {
+  const id = Number(req.params.id);
+  const userIndex = users.findIndex(u => u.id === id);
+
+  if(userIndex === -1) {
+    return res.status(404).json({ error: 'käyttäjää ei löydy' });
+  }
+  users.splice(userIndex, 1);
+  res.json({ message: 'käyttäjä poistettu' });
+};
+
+// Käyttäjän lisäys (rekisteröityminen)
+const postUser = (pyynto, vastaus) => {
+  const newUser = pyynto.body;
+  // Uusilla käyttäjillä pitää olla kaikki vaaditut ominaisuudet tai palautetaan virhe
+  // itse koodattu erittäin yksinkertainen syötteen validointi
+  if (!(newUser.username && newUser.password && newUser.email)) {
+    return vastaus.status(400).json({error: 'required fields missing'});
+  }
+
+  // HUOM: ÄLÄ ikinä loggaa käyttäjätietoja ensimmäisten pakollisten testien jälkeen!!! (tietosuoja)
+  //console.log('registering new user', newUser);
+  const newId = users[users.length - 1].id + 1;
+  // luodaan uusi objekti, joka sisältää id-ominaisuuden ja kaikki newUserObjektin
+  // ominaisuudet ja lisätään users-taulukon loppuun
+  users.push({id: newId, ...newUser});
+  delete newUser.password;
+  console.log('users', users);
+  vastaus.status(201).json({message: 'new user added', user_id: newId});
+};
+
+const postLogin = (req, res) => {
+  const {username, password} = req.body;
+  // haetaan käyttäjä-objekti käyttäjän nimen perusteella
+  const userFound = users.find(user => username === user.username);
+  if (userFound) {
+    if (userFound.password === password) {
+      delete userFound.password;
+      return res.json({message: 'login ok', user: userFound});
+    }
+    return res.status(403).json({error: 'invalid password'});
+  }
+  res.status(404).json({error: 'user not found'});
+};
+
+export {getUserById, putUserById, deleteUserById, getUsers, postUser, postLogin};

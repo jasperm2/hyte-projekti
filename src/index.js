@@ -1,13 +1,59 @@
-// index.js
-import http from 'http';
+import express from 'express';
+import {
+  deleteItemById,
+  getItemById,
+  getItems,
+  postNewItem,
+  putItemById,
+} from './items.js';
+
+
+import {getUsers, postLogin, postUser} from './users.js';
 const hostname = '127.0.0.1';
+const app = express();
 const port = 3000;
 
-const server = http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('Welcome to my REST API!');
+// parsitaan json data pyynnöstä ja lisätään request-objektiin
+app.use(express.json());
+
+// tarjoillaan webbisivusto (front-end) palvelimen juuressa
+app.use('/', express.static('public'));
+
+// API root
+app.get('/api', (req, res) => {
+  res.send('This is dummy items API!');
 });
 
-server.listen(port, hostname, () => {
+// Endpoints for 'items' resource
+// Get all items
+app.get('/api/items', getItems);
+// Get item based on id
+app.get('/api/items/:id', getItemById);
+// PUT route for items
+app.put('/api/items/:id', putItemById);
+// DELETE route for items
+app.delete('/api/items/:id', deleteItemById);
+// Add new item
+app.post('/api/items', postNewItem);
+
+// Users resource endpoints
+// GET all users
+app.get('/api/users', getUsers);
+// POST new user
+app.post('/api/users', postUser);
+// POST user login
+app.post('/api/users/login', postLogin);
+
+// TODO: get user by id
+app.get('/api/users/:id', getItemById)
+
+// TODO: put user by id
+app.get('/api/users/:id', putItemById)
+
+// TODO: delete user by id
+app.get('/api/users/:id', deleteItemById)
+
+
+app.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);
 });
