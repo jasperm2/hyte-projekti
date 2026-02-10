@@ -1,0 +1,21 @@
+{
+  "name": "hyte_projekti",
+  "version": "1.0.0",
+  "description": "hyte projekti",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "jasperm",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.0.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.3.0",
+    "nodemon": "^3.1.11",
+    "prettier": "3.8.1"
+  }
+}
